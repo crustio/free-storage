@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  storage-faucet-service:
+    image: storage-faucet-service
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+      - DB_ENDPOINT=xx
+      - CHAIN_ADDR=xx
+      - TOKEN=xx
+      - SEEDS=xx
+      - AMOUNT=xx
+      - CHANNEL=xx
+      - GITHUB_OAUTH_TOKEN=xx
+      - GITHUB_USERNAME=xx
+      - GITHUB_RepoName=xx
+      - APPLY_COUNT=xx
