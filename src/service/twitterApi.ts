@@ -162,9 +162,10 @@ export async function maybeFollowed(userId: string) {
         let nextToken = currentUserFollowing.meta.next_token;
         while (nextToken) {
             const pageFollowing = await roClient.v2.following(userId, { pagination_token: nextToken });
-            console.log('pageFollowing', pageFollowing);
+            console.log('pageFollowing.data', pageFollowing.data);
             _.forEach(pageFollowing.data, e => followers.push(e.name));
             nextToken = currentUserFollowing.meta.next_token
+            console.log('nextToken', nextToken)
         }
 
         _.forEach(currentUserFollowing.data, e => followers.push(e.name));
