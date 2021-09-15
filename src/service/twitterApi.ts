@@ -66,6 +66,7 @@ export async function singleTweet(tweetId: string) {
 
 export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
     const tweet = await singleTweet(twNum);
+    console.log('tweet', tweet)
     const text = tweet.data.text;
     try {
         const containFSSupertalk = _.includes(text, `#CrustFreeStorage`);
@@ -130,8 +131,10 @@ export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
 export async function twitterUserInfo(twitterName: string) {
     try {  
         const userInfo = await roClient.v2.userByUsername(twitterName);
+        console.log('userInfo', userInfo)
         const twitterId = userInfo.data.id;
         const isFollowed = await maybeFollowed(twitterId);
+        console.log('isFollowed', isFollowed)
         if (isFollowed) {
             return {
                 status: true,
@@ -144,6 +147,7 @@ export async function twitterUserInfo(twitterName: string) {
             }
         }
     } catch (error) {
+        console.log('get twitterUserInfo', error)
         return {
             status: false,
             result: `💥  Illegal user`
@@ -153,6 +157,7 @@ export async function twitterUserInfo(twitterName: string) {
 
 export async function maybeFollowed(userId: string) {
     const currentUserFollowing = await roClient.v2.following(userId);
+    console.log('currentUserFollowing', currentUserFollowing)
     const followingNames = _.map(currentUserFollowing.data, e => e.name);
 
     return _.includes(followingNames, crustTwitter);

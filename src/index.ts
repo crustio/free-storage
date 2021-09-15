@@ -72,7 +72,7 @@ const bot = () => {
                 }
                 if (content.startsWith(twitterLinkPrefix)) {
                     const twitterParseResult = await parseTwitterByLink(content);
-                    if (twitterParseResult.result) {
+                    if (twitterParseResult.status) {
                         const applyResult = await handleWithLock(apiLocker, 'promotion_apply', async () => {
                                 return await promotionCodeHandler(api, {
                                     code: twitterParseResult.code as string,
@@ -99,14 +99,30 @@ const bot = () => {
 // TODO: add error handling
 const main = async () => {
 
-    await pRetry(bot, {
-        onFailedAttempt: error => {
-            console.log(
-                `${error.message} - Retry attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`
-            );
-        },
-        retries: 10,
-    })
+    const twitterParseResult = await parseTwitterByLink('https://twitter.com/zikunf/status/1437310853896753159');
+    if (twitterParseResult.status) {
+        // const applyResult = await handleWithLock(apiLocker, 'promotion_apply', async () => {
+        //         return await promotionCodeHandler(api, {
+        //             code: twitterParseResult.code as string,
+        //             address: twitterParseResult.address as string,
+        //             twitterId: twitterParseResult.user as string
+        //         } as IPromotionApplicant, db);
+        // }, {
+        //     value: "🤯 Faucet is busy, please try it later."
+        // });
+        // msg.reply(applyResult.value);
+    } else {
+        // msg.reply(twitterParseResult.result as string)
+    }
+
+    // await pRetry(bot, {
+    //     onFailedAttempt: error => {
+    //         console.log(
+    //             `${error.message} - Retry attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`
+    //         );
+    //     },
+    //     retries: 10,
+    // })
 };
 
 async function handleWithLock(lockTx: any, key: string, handler: Function, error: any) {
