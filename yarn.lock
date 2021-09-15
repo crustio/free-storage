@@ -2044,6 +2044,11 @@ tweetnacl@^1.0.3:
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"
   integrity sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==
 
+twitter-api-v2@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/twitter-api-v2/-/twitter-api-v2-1.5.1.tgz#e6a20aa9c42533ecb930b80e7cd0d3846117b195"
+  integrity sha512-7bFgf1uM/3PbH2Z8YJyt1QGMTQQa4CFEDHDd3Mr0rTfB7A8DBpLrtWlgSeG0NsRG2UKWLFxT6XEIi2Qc69u1+w==
+
 type-fest@^0.8.1:
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.8.1.tgz#09e249ebde851d3b1e48d27c105444667f17b83d"

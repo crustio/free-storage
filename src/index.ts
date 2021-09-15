@@ -7,11 +7,14 @@ import { typesBundleForPolkadot } from '@crustio/type-definitions';
 import { timeout } from 'promise-timeout';
 const { Client, Intents } = require('discord.js');
 import { githubUserName } from './consts';
-import url from 'url';
 import DB from './db/index';
-import { githubHandler } from './service/handler';
+import { githubHandler, promotionCodeHandler } from './service/handler';
 import _ from 'lodash';
+import { parseTwitterByLink, twitterLinkPrefix } from './service/twitterApi';
+import { IPromotionApplicant } from './db/models/promotionApplicant.model';
 const db = new DB(dbEndpoint as string);
+const twitterLink = `https://twitter.com/zikunf/status/1437310853896753159`;
+const twitterContentReg = `Requesting #CrustFreeStorage quota into {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn`
 
 const l = logger('main');
 
@@ -65,6 +68,23 @@ const bot = () => {
                         }
                     } else {
                         msg.reply('💥 Bad request(issue not exist), please double check your issue link.');
+                    }
+                }
+                if (content.startsWith(twitterLinkPrefix)) {
+                    const twitterParseResult = await parseTwitterByLink(content);
+                    if (twitterParseResult.result) {
+                        const applyResult = await handleWithLock(apiLocker, 'promotion_apply', async () => {
+                                return await promotionCodeHandler(api, {
+                                    code: twitterParseResult.code as string,
+                                    address: twitterParseResult.address as string,
+                                    twitterId: twitterParseResult.user as string
+                                } as IPromotionApplicant, db);
+                        }, {
+                            value: "🤯 Faucet is busy, please try it later."
+                        });
+                        msg.reply(applyResult.value);
+                    } else {
+                        msg.reply(twitterParseResult.result as string)
                     }
                 }
             }
