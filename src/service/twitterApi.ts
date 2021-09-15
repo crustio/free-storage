@@ -156,23 +156,29 @@ export async function twitterUserInfo(twitterName: string) {
 }
 
 export async function maybeFollowed(userId: string) {
-    const followers: any[] = [];
     try {
         const currentUserFollowing = await roClient.v2.following(userId);
-        let nextToken = currentUserFollowing.meta.next_token;
-        while (nextToken) {
-            const pageFollowing = await roClient.v2.following(userId, { pagination_token: nextToken });
-            console.log('pageFollowing.data', pageFollowing.data);
-            _.forEach(pageFollowing.data, e => followers.push(e.name));
-            nextToken = currentUserFollowing.meta.next_token
-            console.log('nextToken', nextToken)
-        }
-
-        _.forEach(currentUserFollowing.data, e => followers.push(e.name));
-        
+        console.log('currentUserFollowing', currentUserFollowing.meta);
+        const index = _.findIndex(currentUserFollowing.data, e => e.name == crustTwitter);
+        if (index >= 0 ) {
+            return true;
+        } else {
+            let nextToken = currentUserFollowing.meta.next_token;
+            while (nextToken) {
+                const pageFollowing = await roClient.v2.following(userId, { pagination_token: nextToken });
+                console.log('pageFollowing.data', pageFollowing.data);
+                const index = _.findIndex(pageFollowing.data, e => e.name == crustTwitter);
+                if (index >= 0 ) {
+                    return true;
+                }
+                nextToken = pageFollowing.meta.next_token;
+                console.log('nextToken', nextToken)
+            }
+        }      
     } catch (error) {
-        
+        console.log('error', error)
+        return false;
     }
 
-    return _.includes(followers, crustTwitter);
+    return false;
 }
