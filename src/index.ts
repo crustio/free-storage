@@ -13,8 +13,6 @@ import _ from 'lodash';
 import { parseTwitterByLink, twitterLinkPrefix } from './service/twitterApi';
 import { IPromotionApplicant } from './db/models/promotionApplicant.model';
 const db = new DB(dbEndpoint as string);
-const twitterLink = `https://twitter.com/zikunf/status/1437310853896753159`;
-const twitterContentReg = `Requesting #CrustFreeStorage quota into {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn`
 
 const l = logger('main');
 
@@ -99,30 +97,14 @@ const bot = () => {
 // TODO: add error handling
 const main = async () => {
 
-    const twitterParseResult = await parseTwitterByLink('https://twitter.com/zikunf/status/1437310853896753159');
-    if (twitterParseResult.status) {
-        // const applyResult = await handleWithLock(apiLocker, 'promotion_apply', async () => {
-        //         return await promotionCodeHandler(api, {
-        //             code: twitterParseResult.code as string,
-        //             address: twitterParseResult.address as string,
-        //             twitterId: twitterParseResult.user as string
-        //         } as IPromotionApplicant, db);
-        // }, {
-        //     value: "🤯 Faucet is busy, please try it later."
-        // });
-        // msg.reply(applyResult.value);
-    } else {
-        // msg.reply(twitterParseResult.result as string)
-    }
-
-    // await pRetry(bot, {
-    //     onFailedAttempt: error => {
-    //         console.log(
-    //             `${error.message} - Retry attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`
-    //         );
-    //     },
-    //     retries: 10,
-    // })
+    await pRetry(bot, {
+        onFailedAttempt: error => {
+            console.log(
+                `${error.message} - Retry attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`
+            );
+        },
+        retries: 10,
+    })
 };
 
 async function handleWithLock(lockTx: any, key: string, handler: Function, error: any) {
