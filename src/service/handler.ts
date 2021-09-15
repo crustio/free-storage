@@ -1,6 +1,7 @@
 import { ApiPromise } from "@polkadot/api";
 import { transferStorageFee } from "../crustApi";
 import DB from "../db";
+import { IPromotionApplicant } from "../db/models/promotionApplicant.model";
 import { GithubApplicant } from "./githubApi";
 
 export async function githubHandler(api: ApiPromise, ghApplicant: GithubApplicant, db: DB) {
@@ -27,26 +28,34 @@ export async function githubHandler(api: ApiPromise, ghApplicant: GithubApplican
     }
 }
 
-// export async function promotionCodeHandler(api: ApiPromise, iPA: IPromotionApplicant, db: DB) {
-//     const orderCount = await db.usePromotionCode(iPA.code);
-//     if (orderCount) {
-//         const result = await transferStorageFee(api, iPA.address, orderCount);
-//         if (result.status) {
-//             await db.savePromotionApplicant(iPA.code, iPA.address);
-//             return {
-//                 ok: true,
-//                 value: "succeed",
-//             };
-//         } else {
-//             await db.promotionRollback(iPA.code);
-//             return {
-//                 ok: false,
-//                 value: result.details
-//             }
-//         }
-//     }
-//     return {
-//         ok: false,
-//         value: "Invalid promotion code",
-//     };
-// }
+export async function promotionCodeHandler(api: ApiPromise, iPA: IPromotionApplicant, db: DB) {
+    const maybeApplied = await db.maybeExistTwitterApplicant(iPA.twitterId, iPA.code);
+    if (maybeApplied) {
+        return {
+            ok: false,
+            value: "️⚠️  Your Twitter account has already used this promotion code."
+        }
+    } else {    
+        const orderCount = await db.usePromotionCode(iPA.code);
+        if (orderCount) {
+            const result = await transferStorageFee(api, iPA.address, orderCount);
+            if (result.status) {
+                await db.savePromotionApplicant(iPA.code, iPA.twitterId, iPA.address);
+                return {
+                    ok: true,
+                    value: "succeed",
+                };
+            } else {
+                await db.promotionRollback(iPA.code);
+                return {
+                    ok: false,
+                    value: result.details
+                }
+            }
+        }
+        return {
+            ok: false,
+            value: "Invalid promotion code",
+        };
+    }
+}

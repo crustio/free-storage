@@ -17,6 +17,15 @@ export default class DB {
         }).exec();
     }
 
+    async maybeExistTwitterApplicant(twitterId: string, code: string) {
+        return PromotionApplicant.findOne({
+            $or: [
+                { 'twitterId': twitterId },
+                { 'code': code }
+            ]
+        }).exec()
+    }
+
     async saveGithubApplicant(githubId: string, githubName: string, address: string) {
         return await GithubApplicant.create({
             githubId,
@@ -40,10 +49,11 @@ export default class DB {
         }
     }
 
-    async savePromotionApplicant(promotionCode: string, address: string) {
+    async savePromotionApplicant(promotionCode: string, twitterId: string, address: string) {
         return await PromotionApplicant.create({
             code: promotionCode,
             address,
+            twitterId
         })
             .then(() => console.log(`save applicant ${address} success`))
             .catch(_ => 0);
