@@ -156,9 +156,22 @@ export async function twitterUserInfo(twitterName: string) {
 }
 
 export async function maybeFollowed(userId: string) {
-    const currentUserFollowing = await roClient.v2.following(userId);
-    console.log('currentUserFollowing', currentUserFollowing)
-    const followingNames = _.map(currentUserFollowing.data, e => e.name);
+    const followers: any[] = [];
+    try {
+        const currentUserFollowing = await roClient.v2.following(userId);
+        let nextToken = currentUserFollowing.meta.next_token;
+        while (nextToken) {
+            const pageFollowing = await roClient.v2.following(userId, { pagination_token: nextToken });
+            console.log('pageFollowing', pageFollowing);
+            _.forEach(pageFollowing.data, e => followers.push(e.name));
+            nextToken = currentUserFollowing.meta.next_token
+        }
 
-    return _.includes(followingNames, crustTwitter);
+        _.forEach(currentUserFollowing.data, e => followers.push(e.name));
+        
+    } catch (error) {
+        
+    }
+
+    return _.includes(followers, crustTwitter);
 }
