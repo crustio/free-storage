@@ -29,28 +29,34 @@ export async function parseTwitterByLink(twitterLink: string): Promise<TweetPars
     if (userStatus) {
         // like ['zikunf', '1437310853896753159']
         const userNameAndContentId = _.split(userStatus, twitterLinkSpliter);
-        const userInfo = await twitterUserInfo(userNameAndContentId[0].trim());
-        if (userInfo.status && userNameAndContentId.length == 2) {
-            const user = userNameAndContentId[0].trim();
-            const t = await judgeTwitterIdentityByTwitterNum(userNameAndContentId[1].trim());
-            if (t.status) {
-                return {
-                    status: true,
-                    user,
-                    address: t.address,
-                    code: t.code
+        if (userNameAndContentId.length == 2) {
+            const userInfo = await twitterUserInfo(userNameAndContentId[0].trim());
+            if (userInfo.status) {
+                const user = userNameAndContentId[0].trim();
+                const t = await judgeTwitterIdentityByTwitterNum(userNameAndContentId[1].trim());
+                if (t.status) {
+                    return {
+                        status: true,
+                        user,
+                        address: t.address,
+                        code: t.code
+                    }
+                } else {
+                    return {
+                        status: false,
+                        result: t.result
+                    }
                 }
             } else {
                 return {
                     status: false,
-                    result: t.result
+                    result: userInfo.result
                 }
             }
-            
         } else {
             return {
                 status: false,
-                result: userInfo.result
+                result: `💥  Bad request(invalid twitter), please double check your twitter link.`
             }
         }
     } else {
