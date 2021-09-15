@@ -19,7 +19,7 @@ export default class DB {
 
     async maybeExistTwitterApplicant(twitterId: string, code: string) {
         return PromotionApplicant.findOne({
-            $or: [
+            $and: [
                 { 'twitterId': twitterId },
                 { 'code': code }
             ]

@@ -43,7 +43,7 @@ export async function promotionCodeHandler(api: ApiPromise, iPA: IPromotionAppli
                 await db.savePromotionApplicant(iPA.code, iPA.twitterId, iPA.address);
                 return {
                     ok: true,
-                    value: "succeed",
+                    value: "🥳  Apply successfully! Please enjoy your journey of decentralized storage with Crust. Next you can refer wiki's **build**(https://wiki.crust.network/docs/en/buildGettingStarted) section to try Crust and IPFS!",
                 };
             } else {
                 await db.promotionRollback(iPA.code);
@@ -55,7 +55,7 @@ export async function promotionCodeHandler(api: ApiPromise, iPA: IPromotionAppli
         }
         return {
             ok: false,
-            value: "Invalid promotion code",
+            value: "⚠️  Invalid promotion code",
         };
     }
 }
