@@ -71,7 +71,7 @@ export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
     try {
         const containFSSupertalk = _.includes(text, `#CrustFreeStorage`);
         const containCrustSupertalk = _.includes(text, `#Crust Network`);
-        const containInviteLink = _.includes(text, `https://discord.gg/WQQHnyKCmn`);
+        const containInviteLink = _.includes(text, `https://t.co/8a2ZUOHq4T`);
         if (containFSSupertalk) {
             if (containCrustSupertalk) {
                 if (containInviteLink) {
