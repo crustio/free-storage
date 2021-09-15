@@ -26,11 +26,11 @@ export interface TweetParseResult {
 export async function parseTwitterByLink(twitterLink: string): Promise<TweetParseResult> {
     // like `zikunf/status/1437310853896753159`
     const userStatus = twitterLink.substr(twitterLinkPrefix.length);
-    // like ['zikunf', '1437310853896753159']
     if (userStatus) {
+        // like ['zikunf', '1437310853896753159']
         const userNameAndContentId = _.split(userStatus, twitterLinkSpliter);
         const userInfo = await twitterUserInfo(userNameAndContentId[0].trim());
-        if (userInfo.status) {
+        if (userInfo.status && userNameAndContentId.length == 2) {
             const user = userNameAndContentId[0].trim();
             const t = await judgeTwitterIdentityByTwitterNum(userNameAndContentId[1].trim());
             if (t.status) {
