@@ -11,8 +11,8 @@ export const twitterLinkPrefix = `https://twitter.com/`;
 // Tell typescript it's a readonly app
 const roClient = twitterClient.readOnly;
 // `Requesting #CrustFreeStorage quota into {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn`
-const twitterContentReg1 = `Requesting #CrustFreeStorage quota into`;
-const twitterContentReg2 = `with`;
+const twitterContentStart = `Requesting #CrustFreeStorage quota into`;
+const twitterContentPromotionWith = `with`;
 const twitterLinkSpliter = `/status/`
 
 export interface TweetParseResult {
@@ -27,29 +27,36 @@ export async function parseTwitterByLink(twitterLink: string): Promise<TweetPars
     // like `zikunf/status/1437310853896753159`
     const userStatus = twitterLink.substr(twitterLinkPrefix.length);
     // like ['zikunf', '1437310853896753159']
-    const userNameAndContentId = _.split(userStatus, twitterLinkSpliter);
-    const userInfo = await twitterUserInfo(userNameAndContentId[0].trim());
-    if (userInfo.status) {
-        const user = userNameAndContentId[0].trim();
-        const t = await judgeTwitterIdentityByTwitterNum(userNameAndContentId[1].trim());
-        if (t.status) {
-            return {
-                status: true,
-                user,
-                address: t.address,
-                code: t.code
+    if (userStatus) {
+        const userNameAndContentId = _.split(userStatus, twitterLinkSpliter);
+        const userInfo = await twitterUserInfo(userNameAndContentId[0].trim());
+        if (userInfo.status) {
+            const user = userNameAndContentId[0].trim();
+            const t = await judgeTwitterIdentityByTwitterNum(userNameAndContentId[1].trim());
+            if (t.status) {
+                return {
+                    status: true,
+                    user,
+                    address: t.address,
+                    code: t.code
+                }
+            } else {
+                return {
+                    status: false,
+                    result: t.result
+                }
             }
+            
         } else {
             return {
                 status: false,
-                result: t.result
+                result: userInfo.result
             }
         }
-        
     } else {
         return {
             status: false,
-            result: userInfo.result
+            result: `💥  Bad request(invalid twitter), please double check your twitter link.`
         }
     }
 }
@@ -76,14 +83,14 @@ export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
             if (containCrustSupertalk) {
                 if (containInviteLink) {
                     // like  {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn
-                    const str1 = text.substr(twitterContentReg1.length);
+                    const addrWithCodeStr = text.substr(twitterContentStart.length);
                     // like [`cTMeMr6cC2xQwonTwpbSyKGv2VkvxEB836xr63vt8HsDNbF9q`, `protionCode on the #Crust Network via https://discord.gg/WQQHnyKCmn`]
-                    const splits = str1.split(twitterContentReg2);
-                    if (splits.length == 2) {
-                        const address = splits[0].trim();
+                    const addressSplits = addrWithCodeStr.split(twitterContentPromotionWith);
+                    if (addressSplits.length == 2) {
+                        const address = addressSplits[0].trim();
                         if (isValidAddr(address)) {
                             // like ['code', 'via https://discord.gg/WQQHnyKCmn']
-                            const codeSplit = splits[1].split(`on the #Crust Network`);
+                            const codeSplit = addressSplits[1].split(`on the #Crust Network`);
                             const code = codeSplit[0].trim();
                             return {
                                 status: true,
@@ -158,7 +165,6 @@ export async function twitterUserInfo(twitterName: string) {
 export async function maybeFollowed(userId: string) {
     try {
         const currentUserFollowing = await roClient.v2.following(userId);
-        console.log('currentUserFollowing', currentUserFollowing.meta);
         const index = _.findIndex(currentUserFollowing.data, e => e.name == crustTwitter);
         if (index >= 0 ) {
             return true;
@@ -166,13 +172,11 @@ export async function maybeFollowed(userId: string) {
             let nextToken = currentUserFollowing.meta.next_token;
             while (nextToken) {
                 const pageFollowing = await roClient.v2.following(userId, { pagination_token: nextToken });
-                console.log('pageFollowing.data', pageFollowing.data);
                 const index = _.findIndex(pageFollowing.data, e => e.name == crustTwitter);
                 if (index >= 0 ) {
                     return true;
                 }
                 nextToken = pageFollowing.meta.next_token;
-                console.log('nextToken', nextToken)
             }
         }      
     } catch (error) {

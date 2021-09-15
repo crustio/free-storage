@@ -69,7 +69,12 @@ const bot = () => {
                     }
                 }
                 if (content.startsWith(twitterLinkPrefix)) {
-                    const twitterParseResult = await parseTwitterByLink(content);
+                    const twitterParseResult = await handleWithLock(apiLocker, 'parse_twitter', async () => {
+                        return await parseTwitterByLink(content);
+                    }, {
+                        status: false,
+                        result: "🤯 Faucet is busy, please try it later."
+                    })
                     if (twitterParseResult.status) {
                         const applyResult = await handleWithLock(apiLocker, 'promotion_apply', async () => {
                                 return await promotionCodeHandler(api, {
