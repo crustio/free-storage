@@ -1,9 +1,10 @@
 import TwitterApi from 'twitter-api-v2';
 import _ from 'lodash';
 import { isValidAddr } from '..';
+import { twApiKey } from '../consts';
 
 // Instanciate with desired auth type (here's Bearer v2 auth)
-const twitterClient = new TwitterApi('<YOUR_APP_USER_TOKEN>');
+const twitterClient = new TwitterApi(twApiKey);
 const crustTwitter = 'Crust Network'
 export const twitterLinkPrefix = `https://twitter.com/`;
 
