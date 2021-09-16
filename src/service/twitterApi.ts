@@ -83,7 +83,7 @@ export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
     const twText = tweet.data.text;
     try {
         const containFSSupertalk = _.includes(twText, `#CrustFreeStorage`);
-        const containCrustSupertalk = _.includes(twText, '#Crust Network');
+        const containCrustSupertalk = _.includes(twText.replace(/\s+/g, "c"), '#CrustcNetwork');
         const containInviteLink = _.includes(twText, `https://t.co/8a2ZUOHq4T`);
         if (containFSSupertalk) {
             if (containCrustSupertalk) {
