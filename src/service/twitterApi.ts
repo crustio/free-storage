@@ -165,14 +165,15 @@ export async function twitterUserInfo(twitterName: string) {
 
 export async function maybeFollowed(userId: string) {
     try {
-        const currentUserFollowing = await roClient.v2.following(userId);
+        const currentUserFollowing = await roClient.v2.following(userId, { max_results: 1000 });
         const index = _.findIndex(currentUserFollowing.data, e => e.name == crustTwitter);
         if (index >= 0 ) {
             return true;
         } else {
+            console.log('currentUserFollowing', currentUserFollowing)
             let nextToken = currentUserFollowing.meta.next_token;
             while (nextToken) {
-                const pageFollowing = await roClient.v2.following(userId, { pagination_token: nextToken });
+                const pageFollowing = await roClient.v2.following(userId, { max_results: 1000, pagination_token: nextToken });
                 const index = _.findIndex(pageFollowing.data, e => e.name == crustTwitter);
                 if (index >= 0 ) {
                     return true;
