@@ -84,41 +84,33 @@ export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
     try {
         const containFSSupertalk = _.includes(twText, `#CrustFreeStorage`);
         const containCrustSupertalk = _.includes(twText.replace(/\s+/g, "c"), '#CrustcNetwork');
-        const containInviteLink = _.includes(twText, `https://t.co/8a2ZUOHq4T`);
         if (containFSSupertalk) {
             if (containCrustSupertalk) {
-                if (containInviteLink) {
-                    // like  {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn
-                    const addrWithCodeStr = twText.substr(twitterContentStart.length);
-                    // like [`cTMeMr6cC2xQwonTwpbSyKGv2VkvxEB836xr63vt8HsDNbF9q`, `protionCode on the #Crust Network via https://discord.gg/WQQHnyKCmn`]
-                    const addressSplits = addrWithCodeStr.split(twitterContentPromotionWith);
-                    if (addressSplits.length == 2) {
-                        const address = addressSplits[0].trim();
-                        if (isValidAddr(address)) {
-                            // like ['code', 'via https://discord.gg/WQQHnyKCmn']
-                            const codeSplit = addressSplits[1].split(`on the #Crust Network`);
-                            const code = codeSplit[0].trim();
-                            return {
-                                status: true,
-                                address,
-                                code
-                            }
-                        } else {
-                            return {
-                                status: false,
-                                result: `💥  Invalid Crust address`
-                            }
+                // like  {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn
+                const addrWithCodeStr = twText.substr(twitterContentStart.length);
+                // like [`cTMeMr6cC2xQwonTwpbSyKGv2VkvxEB836xr63vt8HsDNbF9q`, `protionCode on the #Crust Network via https://discord.gg/WQQHnyKCmn`]
+                const addressSplits = addrWithCodeStr.split(twitterContentPromotionWith);
+                if (addressSplits.length == 2) {
+                    const address = addressSplits[0].trim();
+                    if (isValidAddr(address)) {
+                        // like ['code', 'via https://discord.gg/WQQHnyKCmn']
+                        const codeSplit = addressSplits[1].split(`on the #Crust Network`);
+                        const code = codeSplit[0].trim();
+                        return {
+                            status: true,
+                            address,
+                            code
                         }
                     } else {
                         return {
                             status: false,
-                            result: `💥  Wrong content format`
+                            result: `💥  Invalid Crust address`
                         }
                     }
                 } else {
                     return {
                         status: false,
-                        result: `💥  Wrong content format, missing invitation link (https://discord.gg/WQQHnyKCmn)`
+                        result: `💥  Wrong content format`
                     }
                 }
             } else {
