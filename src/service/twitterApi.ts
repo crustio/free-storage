@@ -80,16 +80,16 @@ export async function singleTweet(tweetId: string) {
 export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
     const tweet = await singleTweet(twNum);
     console.log('tweet', tweet)
-    const text = tweet.data.text;
+    const twText = tweet.data.text;
     try {
-        const containFSSupertalk = _.includes(text, `#CrustFreeStorage`);
-        const containCrustSupertalk = _.includes(text, `#Crust Network`);
-        const containInviteLink = _.includes(text, `https://t.co/8a2ZUOHq4T`);
+        const containFSSupertalk = _.includes(twText, `#CrustFreeStorage`);
+        const containCrustSupertalk = _.includes(twText, '#Crust Network');
+        const containInviteLink = _.includes(twText, `https://t.co/8a2ZUOHq4T`);
         if (containFSSupertalk) {
             if (containCrustSupertalk) {
                 if (containInviteLink) {
                     // like  {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn
-                    const addrWithCodeStr = text.substr(twitterContentStart.length);
+                    const addrWithCodeStr = twText.substr(twitterContentStart.length);
                     // like [`cTMeMr6cC2xQwonTwpbSyKGv2VkvxEB836xr63vt8HsDNbF9q`, `protionCode on the #Crust Network via https://discord.gg/WQQHnyKCmn`]
                     const addressSplits = addrWithCodeStr.split(twitterContentPromotionWith);
                     if (addressSplits.length == 2) {
