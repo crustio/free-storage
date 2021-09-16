@@ -80,58 +80,66 @@ export async function singleTweet(tweetId: string) {
 export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
     const tweet = await singleTweet(twNum);
     console.log('tweet', tweet)
-    const twText = tweet.data.text;
-    try {
-        const text = twText.replace(/\s+/g, " ")
-        const containFSSupertalk = _.includes(text, `#CrustFreeStorage`);
-        const containCrustSupertalk = _.includes(text.replace(/\s+/g, " "), '#CrustNetwork');
-        if (containFSSupertalk) {
-            if (containCrustSupertalk) {
-                // like {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn
-                const addrWithCodeStr = text.substr(twitterContentStart.length);
-                // like [`cTMeMr6cC2xQwonTwpbSyKGv2VkvxEB836xr63vt8HsDNbF9q`, `protionCode on the #Crust Network via https://discord.gg/WQQHnyKCmn`]
-                const addressSplits = addrWithCodeStr.split(twitterContentPromotionWith);
-                console.log('addressSplits', addressSplits)
-                if (addressSplits.length == 2) {
-                    const address = addressSplits[0].trim();
-                    if (isValidAddr(address)) {
-                        // like ['code', 'via https://discord.gg/WQQHnyKCmn']
-                        const codeSplit = addressSplits[1].split(`on the #CrustNetwork`);
-                        const code = codeSplit[0].trim();
-                        console.log('code', code)
-                        return {
-                            status: true,
-                            address,
-                            code
+    const data = tweet.data;
+    if (data) {
+        const twText = tweet.data.text;    
+        try {
+            const text = twText.replace(/\s+/g, " ")
+            const containFSSupertalk = _.includes(text, `#CrustFreeStorage`);
+            const containCrustSupertalk = _.includes(text.replace(/\s+/g, " "), '#CrustNetwork');
+            if (containFSSupertalk) {
+                if (containCrustSupertalk) {
+                    // like {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn
+                    const addrWithCodeStr = text.substr(twitterContentStart.length);
+                    // like [`cTMeMr6cC2xQwonTwpbSyKGv2VkvxEB836xr63vt8HsDNbF9q`, `protionCode on the #Crust Network via https://discord.gg/WQQHnyKCmn`]
+                    const addressSplits = addrWithCodeStr.split(twitterContentPromotionWith);
+                    console.log('addressSplits', addressSplits)
+                    if (addressSplits.length == 2) {
+                        const address = addressSplits[0].trim();
+                        if (isValidAddr(address)) {
+                            // like ['code', 'via https://discord.gg/WQQHnyKCmn']
+                            const codeSplit = addressSplits[1].split(`on the #CrustNetwork`);
+                            const code = codeSplit[0].trim();
+                            console.log('code', code)
+                            return {
+                                status: true,
+                                address,
+                                code
+                            }
+                        } else {
+                            return {
+                                status: false,
+                                result: `💥  Invalid Crust address`
+                            }
                         }
                     } else {
                         return {
                             status: false,
-                            result: `💥  Invalid Crust address`
+                            result: `💥  Wrong content format`
                         }
                     }
                 } else {
                     return {
                         status: false,
-                        result: `💥  Wrong content format`
+                        result: `💥  Wrong content format, missing #Crust Network`
                     }
                 }
             } else {
                 return {
                     status: false,
-                    result: `💥  Wrong content format, missing #Crust Network`
+                    result: `💥  Wrong content format, missing #CrustFreeStorage`
                 }
             }
-        } else {
+        } catch (error) {
             return {
                 status: false,
-                result: `💥  Wrong content format, missing #CrustFreeStorage`
+                result: `💥  Bad request(invalid twitter), please double check your twitter link.`
             }
         }
-    } catch (error) {
+    } else {
         return {
             status: false,
-            result: `💥  Bad request(invalid twitter), please double check your twitter link.`
+            result: `💥  Could not find tweet with your twitter link.`
         }
     }
 }
