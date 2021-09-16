@@ -10,7 +10,7 @@ export const twitterLinkPrefix = `https://twitter.com/`;
 
 // Tell typescript it's a readonly app
 const roClient = twitterClient.readOnly;
-// `Requesting #CrustFreeStorage quota into {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn`
+// `Requesting #CrustFreeStorage quota into {address} with {protionCode} on the #CrustNetwork via https://discord.gg/WQQHnyKCmn`
 const twitterContentStart = `Requesting #CrustFreeStorage quota into`;
 const twitterContentPromotionWith = `with`;
 const twitterLinkSpliter = `/status/`
@@ -84,7 +84,7 @@ export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
     try {
         const text = twText.replace(/\s+/g, " ")
         const containFSSupertalk = _.includes(text, `#CrustFreeStorage`);
-        const containCrustSupertalk = _.includes(text.replace(/\s+/g, " "), '#Crust Network');
+        const containCrustSupertalk = _.includes(text.replace(/\s+/g, " "), '#CrustNetwork');
         if (containFSSupertalk) {
             if (containCrustSupertalk) {
                 // like {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn
