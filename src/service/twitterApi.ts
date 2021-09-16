@@ -82,20 +82,23 @@ export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
     console.log('tweet', tweet)
     const twText = tweet.data.text;
     try {
-        const containFSSupertalk = _.includes(twText, `#CrustFreeStorage`);
-        const containCrustSupertalk = _.includes(twText.replace(/\s+/g, "c"), '#CrustcNetwork');
+        const text = twText.replace(/\s+/g, " ")
+        const containFSSupertalk = _.includes(text, `#CrustFreeStorage`);
+        const containCrustSupertalk = _.includes(text.replace(/\s+/g, " "), '#Crust Network');
         if (containFSSupertalk) {
             if (containCrustSupertalk) {
-                // like  {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn
-                const addrWithCodeStr = twText.substr(twitterContentStart.length);
+                // like {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn
+                const addrWithCodeStr = text.substr(twitterContentStart.length);
                 // like [`cTMeMr6cC2xQwonTwpbSyKGv2VkvxEB836xr63vt8HsDNbF9q`, `protionCode on the #Crust Network via https://discord.gg/WQQHnyKCmn`]
                 const addressSplits = addrWithCodeStr.split(twitterContentPromotionWith);
+                console.log('addressSplits', addressSplits)
                 if (addressSplits.length == 2) {
                     const address = addressSplits[0].trim();
                     if (isValidAddr(address)) {
                         // like ['code', 'via https://discord.gg/WQQHnyKCmn']
                         const codeSplit = addressSplits[1].split(`on the #Crust Network`);
                         const code = codeSplit[0].trim();
+                        console.log('code', code)
                         return {
                             status: true,
                             address,
