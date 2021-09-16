@@ -96,7 +96,7 @@ export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
                     const address = addressSplits[0].trim();
                     if (isValidAddr(address)) {
                         // like ['code', 'via https://discord.gg/WQQHnyKCmn']
-                        const codeSplit = addressSplits[1].split(`on the #Crust Network`);
+                        const codeSplit = addressSplits[1].split(`on the #CrustNetwork`);
                         const code = codeSplit[0].trim();
                         console.log('code', code)
                         return {
