@@ -38,7 +38,7 @@ export async function promotionCodeHandler(api: ApiPromise, iPA: IPromotionAppli
     } else {    
         const orderCount = await db.usePromotionCode(iPA.code);
         if (orderCount) {
-            const result = await transferStorageFee(api, iPA.address, orderCount);
+            const result = await transferStorageFee(api, iPA.address);
             if (result.status) {
                 await db.savePromotionApplicant(iPA.code, iPA.twitterId, iPA.address);
                 return {
