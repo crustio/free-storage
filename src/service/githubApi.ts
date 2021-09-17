@@ -109,8 +109,8 @@ export const maybeStarred = async (githubId: number) => {
             per_page: 100,
             page: i
         })
-        const stars = starInfoResult.data as any[]
-        const index = _.indexOf(stars, (e: { id: number; }) => e.id == githubId);
+        const stars = starInfoResult.data as any[];
+        const index = _.findIndex(stars, (e: { id: number; }) => e.id == githubId);
         if (index >= 0) {
             return true
         }
