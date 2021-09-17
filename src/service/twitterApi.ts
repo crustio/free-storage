@@ -1,6 +1,6 @@
 import TwitterApi from 'twitter-api-v2';
 import _ from 'lodash';
-import { isValidAddr } from '..';
+import { getMainnetAddr } from '..';
 import { twApiKey } from '../consts';
 
 // Instanciate with desired auth type (here's Bearer v2 auth)
@@ -96,14 +96,15 @@ export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
                     console.log('addressSplits', addressSplits)
                     if (addressSplits.length == 2) {
                         const address = addressSplits[0].trim();
-                        if (isValidAddr(address)) {
+                        const mainnetAddr = getMainnetAddr(address);
+                        if (mainnetAddr) {
                             // like ['code', 'via https://discord.gg/WQQHnyKCmn']
                             const codeSplit = addressSplits[1].split(`on the #CrustNetwork`);
                             const code = codeSplit[0].trim();
                             console.log('code', code)
                             return {
                                 status: true,
-                                address,
+                                address: mainnetAddr,
                                 code
                             }
                         } else {
