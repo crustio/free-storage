@@ -43,7 +43,7 @@ async function sendTx(
                 // Pass it
             }
 
-            if (status.isInBlock) {
+            if (status.isInBlock || status.isFinalized) {
                 events.forEach(({ event: { method, section, data } }) => {
                     if (section === 'system' && method === 'ExtrinsicFailed') {
                         // Error with no detail, just return error
