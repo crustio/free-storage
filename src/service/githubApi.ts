@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Octokit } from 'octokit';
-import { isValidAddr } from '..';
+import { getMainnetAddr } from '..';
 import { githubUserName, githubRepoName, githubOauthToken } from '../consts'
 import { validateGithub } from '../util';
 import _ from 'lodash';
@@ -30,7 +30,8 @@ export const judgeGithubIdentityByIssueNum = async (issueId: number): Promise<Is
         const issueData = remoteIssue.data;
         if (issueData) {
             const issueTittle = issueData.title;
-            if (isValidAddr(issueTittle)) {
+            const address = getMainnetAddr(issueTittle);
+            if (address) {
                 const creatorId = issueData.user?.id;
                 if (creatorId) {     
                     try {
@@ -45,7 +46,7 @@ export const judgeGithubIdentityByIssueNum = async (issueId: number): Promise<Is
                                 return {
                                     status: true,
                                     githubInfo: {
-                                        address: issueTittle as any as string,
+                                        address,
                                         githubId: creatorId as any as string,
                                         githubName: userInfo.data.login
                                     }
