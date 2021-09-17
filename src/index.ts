@@ -17,14 +17,23 @@ const l = logger('main');
 
 const keyring = new Keyring();
 
-export const isValidAddr = (addr: string) => {
+// export const isValidAddr = (addr: string) => {
+//     try {
+//         keyring.decodeAddress(addr);
+//         return true;
+//     } catch (error) {
+//         return false;
+//     }
+// }
+
+export const getMainnetAddr = (addr: string) => {
     try {
-        keyring.decodeAddress(addr);
-        return true;
+        return keyring.encodeAddress(keyring.decodeAddress(addr), 66)
     } catch (error) {
-        return false;
+        return null;
     }
 }
+
 const apiLocker = {};
 
 const bot = () => {
