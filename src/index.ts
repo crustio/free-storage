@@ -62,7 +62,7 @@ const bot = () => {
                     if (_.isNumber(Number(issue))) {       
                         const parseResult = await judgeGithubIdentityByIssueNum(Number(issue));
                         if (parseResult.status) {
-                            const applyResult = await handleWithLock(apiLocker, 'github_apply', async () => {
+                            const applyResult = await handleWithLock(apiLocker, 'apply', async () => {
                                 if (parseResult.githubInfo) {
                                     return await githubHandler(api, parseResult.githubInfo, db);
                                 }
@@ -78,14 +78,14 @@ const bot = () => {
                     }
                 }
                 if (content.startsWith(twitterLinkPrefix)) {
-                    const twitterParseResult = await handleWithLock(apiLocker, 'parse_twitter', async () => {
+                    const twitterParseResult = await handleWithLock(apiLocker, 'apply', async () => {
                         return await parseTwitterByLink(content);
                     }, {
                         status: false,
                         result: "🤯 Faucet is busy, please try it later."
                     })
                     if (twitterParseResult.status) {
-                        const applyResult = await handleWithLock(apiLocker, 'promotion_apply', async () => {
+                        const applyResult = await handleWithLock(apiLocker, 'apply', async () => {
                                 return await promotionCodeHandler(api, {
                                     code: twitterParseResult.code as string,
                                     address: twitterParseResult.address as string,
