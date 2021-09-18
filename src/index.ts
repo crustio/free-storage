@@ -78,7 +78,7 @@ const bot = () => {
                     }
                 }
                 if (content.startsWith(twitterLinkPrefix)) {
-                    const twitterParseResult = await handleWithLock(apiLocker, 'apply', async () => {
+                    const twitterParseResult = await handleWithLock(apiLocker, 'parse_twitter', async () => {
                         return await parseTwitterByLink(content);
                     }, {
                         status: false,
