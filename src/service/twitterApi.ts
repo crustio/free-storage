@@ -89,9 +89,9 @@ export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
             const containCrustSupertalk = _.includes(text.replace(/\s+/g, " "), '#CrustNetwork');
             if (containFSSupertalk) {
                 if (containCrustSupertalk) {
-                    // like {address} with {protionCode} on the #Crust Network via https://discord.gg/WQQHnyKCmn
+                    // like {address} with {protionCode} on the #CrustNetwork via https://discord.gg/WQQHnyKCmn
                     const addrWithCodeStr = text.substr(twitterContentStart.length);
-                    // like [`cTMeMr6cC2xQwonTwpbSyKGv2VkvxEB836xr63vt8HsDNbF9q`, `protionCode on the #Crust Network via https://discord.gg/WQQHnyKCmn`]
+                    // like [`cTMeMr6cC2xQwonTwpbSyKGv2VkvxEB836xr63vt8HsDNbF9q`, `protionCode on the #CrustNetwork via https://discord.gg/WQQHnyKCmn`]
                     const addressSplits = addrWithCodeStr.split(twitterContentPromotionWith);
                     console.log('addressSplits', addressSplits)
                     if (addressSplits.length == 2) {
@@ -122,7 +122,7 @@ export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
                 } else {
                     return {
                         status: false,
-                        result: `💥  Wrong content format, missing #Crust Network`
+                        result: `💥  Wrong content format, missing #CrustNetwork`
                     }
                 }
             } else {
