@@ -12,7 +12,6 @@ export const twitterLinkPrefix = `https://twitter.com/`;
 const roClient = twitterClient.readOnly;
 // `Requesting #CrustFreeStorage quota into {address} with {protionCode} on the #CrustNetwork via https://discord.gg/WQQHnyKCmn`
 const twitterContentStart = `Requesting #CrustFreeStorage quota into`;
-const twitterContentPromotionWith = `with`;
 const twitterLinkSpliter = `/status/`
 
 export interface TweetParseResult {
@@ -24,45 +23,51 @@ export interface TweetParseResult {
 }
 
 export async function parseTwitterByLink(twitterLink: string): Promise<TweetParseResult> {
-    // like `zikunf/status/1437310853896753159`
-    const userStatus = twitterLink.substr(twitterLinkPrefix.length);
-    if (userStatus) {
-        // like ['zikunf', '1437310853896753159']
-        const userNameAndContentId = _.split(userStatus, twitterLinkSpliter);
-        if (userNameAndContentId.length == 2) {
-            const userInfo = await twitterUserInfo(userNameAndContentId[0].trim());
-            if (userInfo.status) {
-                const user = userNameAndContentId[0].trim();
-                const t = await judgeTwitterIdentityByTwitterNum(userNameAndContentId[1].trim());
-                if (t.status) {
-                    return {
-                        status: true,
-                        user,
-                        address: t.address,
-                        code: t.code
+    try {
+        // like `zikunf/status/1437310853896753159`
+        const userStatus = twitterLink.substr(twitterLinkPrefix.length);
+        if (userStatus) {
+            // like ['zikunf', '1437310853896753159']
+            const [user, tweetId] = _.split(userStatus, twitterLinkSpliter);
+            if (tweetId) {
+                const userInfo = await isTwitterUserLegalAndFollowed(user.trim());
+                if (userInfo.status) {
+                    const t = await judgeTwitterIdentityByTwitterNum(tweetId.trim());
+                    if (t.status) {
+                        return {
+                            status: true,
+                            user,
+                            address: t.address,
+                            code: t.code
+                        }
+                    } else {
+                        return {
+                            status: false,
+                            result: t.result
+                        }
                     }
                 } else {
                     return {
                         status: false,
-                        result: t.result
+                        result: userInfo.result
                     }
                 }
             } else {
                 return {
                     status: false,
-                    result: userInfo.result
+                    result: `💥 Bad request(invalid twitter status), please double check your status link`
                 }
             }
         } else {
             return {
                 status: false,
-                result: `💥  Bad request(invalid twitter), please double check your twitter link.`
+                result: `💥 Bad request(invalid twitter status), please double check your status link`
             }
         }
-    } else {
+    } catch (error) {
         return {
             status: false,
-            result: `💥  Bad request(invalid twitter), please double check your twitter link.`
+            result: `💥 Bad request(invalid twitter status), please double check your status link`
         }
     }
 }
@@ -77,75 +82,79 @@ export async function singleTweet(tweetId: string) {
     return roClient.v2.singleTweet(tweetId);
 }
 
-export async function judgeTwitterIdentityByTwitterNum (twNum: string) {
-    const tweet = await singleTweet(twNum);
-    console.log('tweet', tweet)
-    const data = tweet.data;
-    if (data) {
-        const twText = tweet.data.text;    
-        try {
-            const text = twText.replace(/\s+/g, " ")
-            const containFSSupertalk = _.includes(text, `#CrustFreeStorage`);
-            const containCrustSupertalk = _.includes(text.replace(/\s+/g, " "), '#CrustNetwork');
-            if (containFSSupertalk) {
-                if (containCrustSupertalk) {
-                    // like {address} with {protionCode} on the #CrustNetwork via https://discord.gg/WQQHnyKCmn
-                    const addrWithCodeStr = text.substr(twitterContentStart.length);
-                    // like [`cTMeMr6cC2xQwonTwpbSyKGv2VkvxEB836xr63vt8HsDNbF9q`, `protionCode on the #CrustNetwork via https://discord.gg/WQQHnyKCmn`]
-                    const addressSplits = addrWithCodeStr.split(twitterContentPromotionWith);
-                    console.log('addressSplits', addressSplits)
-                    if (addressSplits.length == 2) {
-                        const address = addressSplits[0].trim();
-                        const mainnetAddr = getMainnetAddr(address);
-                        if (mainnetAddr) {
-                            // like ['code', 'via https://discord.gg/WQQHnyKCmn']
-                            const codeSplit = addressSplits[1].split(`on the #CrustNetwork`);
-                            const code = codeSplit[0].trim();
-                            console.log('code', code)
-                            return {
-                                status: true,
-                                address: mainnetAddr,
-                                code
+export async function judgeTwitterIdentityByTwitterNum(twNum: string) {
+    try {      
+        const tweet = await singleTweet(twNum);
+        console.log('tweet', tweet)
+        const data = tweet.data;
+        if (data) {
+            const twText = tweet.data.text;    
+            try {
+                const text = twText.replace(/\s+/g, " ")
+                const containFSSupertalk = _.includes(text, `#CrustFreeStorage`);
+                const containCrustSupertalk = _.includes(text, '#CrustNetwork');
+                if (containFSSupertalk) {
+                    if (containCrustSupertalk) {
+                        // like {address} with {protionCode} on the #CrustNetwork via https://discord.gg/WQQHnyKCmn
+                        const addrWithCodeStr = text.substr(twitterContentStart.length).trim();
+                        // like ['cTMeMr6cC2xQwonTwpbSyKGv2VkvxEB836xr63vt8HsDNbF9q', 'with', 'protionCode']
+                        const addressSplits = _.split(addrWithCodeStr, " ", 3);
+                        console.log('addressSplits', addressSplits)
+                        if (addressSplits.length == 3) {
+                            const address = addressSplits[0].trim();
+                            const mainnetAddr = getMainnetAddr(address);
+                            const code = addressSplits[2].trim();
+                            if (mainnetAddr) {
+                                return {
+                                    status: true,
+                                    address: mainnetAddr,
+                                    code
+                                }
+                            } else {
+                                return {
+                                    status: false,
+                                    result: `💥 Bad request(invalid Crust address), address must be started with c-`
+                                }
                             }
                         } else {
                             return {
                                 status: false,
-                                result: `💥  Invalid Crust address`
+                                result: `💥 Bad request(bad content format), make sure you tweet like ... {CRUST_ADDRESS} with {PROMO_CODE} ...`
                             }
                         }
                     } else {
                         return {
                             status: false,
-                            result: `💥  Wrong content format`
+                            result: `💥  Wrong content format, missing #CrustNetwork`
                         }
                     }
                 } else {
                     return {
                         status: false,
-                        result: `💥  Wrong content format, missing #CrustNetwork`
+                        result: `💥 Bad request(bad content format), missing #CrustFreeStorage`
                     }
                 }
-            } else {
+            } catch (error) {
                 return {
                     status: false,
-                    result: `💥  Wrong content format, missing #CrustFreeStorage`
+                    result: `💥 Bad request(invalid twitter status), please double check your status link`
                 }
             }
-        } catch (error) {
+        } else {
             return {
                 status: false,
-                result: `💥  Bad request(invalid twitter), please double check your twitter link.`
+                result: `💥 Bad request(bad twitter status link), tweet not exist`
             }
         }
-    } else {
+    } catch (error) {
         return {
             status: false,
-            result: `💥  Could not find tweet with your twitter link.`
+            result: `💥 Bad request(bad twitter status link), tweet not exist`
         }
     }
 }
 
-export async function twitterUserInfo(twitterName: string) {
+export async function isTwitterUserLegalAndFollowed(twitterName: string) {
     try {  
         const userInfo = await roClient.v2.userByUsername(twitterName);
         console.log('userInfo', userInfo)
@@ -160,14 +169,14 @@ export async function twitterUserInfo(twitterName: string) {
         } else {
             return {
                 status: false,
-                result: `💥  Not following Crust Network`
+                result: `👀 Please follow @CrustNetwork`
             }
         }
     } catch (error) {
         console.log('get twitterUserInfo', error)
         return {
             status: false,
-            result: `💥  Illegal user`
+            result: `👽 User not exist`
         }
     }
 }

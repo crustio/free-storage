@@ -56,9 +56,9 @@ const bot = () => {
             if (channel == channelId) {
                 const content = msg.content;
                 //   const authorId = msg.author.id;
-                const urlPrefix = `https://github.com/${githubUserName}/${githubRepoName}/issues/`;
-                if (content.startsWith(urlPrefix)) {
-                    const issue = content.substr(urlPrefix.length);
+                const githubUrlPrefix = `https://github.com/${githubUserName}/${githubRepoName}/issues/`;
+                if (content.startsWith(githubUrlPrefix)) {
+                    const issue = content.substr(githubUrlPrefix.length);
                     if (_.isNumber(Number(issue))) {       
                         const parseResult = await judgeGithubIdentityByIssueNum(Number(issue));
                         if (parseResult.status) {
@@ -69,7 +69,11 @@ const bot = () => {
                             }, {
                                 value: "🤯 Faucet is busy, please try it later."
                             });
-                            msg.reply(applyResult.value);
+                            if (applyResult && applyResult.value) {
+                                msg.reply(applyResult.value);
+                            } else {
+                                msg.reply("🤯 Faucet is busy, please try it later.");
+                            }
                         } else {
                             msg.reply(parseResult.result);
                         }
@@ -94,7 +98,11 @@ const bot = () => {
                         }, {
                             value: "🤯 Faucet is busy, please try it later."
                         });
-                        msg.reply(applyResult.value);
+                        if (applyResult && applyResult.value) {
+                            msg.reply(applyResult.value);
+                        } else {
+                            msg.reply("🤯 Faucet is busy, please try it later.");
+                        }
                     } else {
                         msg.reply(twitterParseResult.result as string)
                     }
