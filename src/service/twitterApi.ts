@@ -95,37 +95,44 @@ export async function judgeTwitterIdentityByTwitterNum(twNum: string) {
                 const containCrustSupertalk = _.includes(text, '#CrustNetwork');
                 if (containFSSupertalk) {
                     if (containCrustSupertalk) {
-                        // like {address} with {protionCode} on the #CrustNetwork via https://discord.gg/WQQHnyKCmn
-                        const addrWithCodeStr = text.substr(twitterContentStart.length).trim();
-                        // like ['cTMeMr6cC2xQwonTwpbSyKGv2VkvxEB836xr63vt8HsDNbF9q', 'with', 'protionCode']
-                        const addressSplits = _.split(addrWithCodeStr, " ", 3);
-                        console.log('addressSplits', addressSplits)
-                        if (addressSplits.length == 3) {
-                            const address = addressSplits[0].trim();
-                            const mainnetAddr = getMainnetAddr(address);
-                            const code = addressSplits[2].trim();
-                            if (mainnetAddr) {
-                                return {
-                                    status: true,
-                                    address: mainnetAddr,
-                                    code
+                        if (text.startsWith(twitterContentStart)) {
+                            // like {address} with {protionCode} on the #CrustNetwork via https://discord.gg/WQQHnyKCmn
+                            const addrWithCodeStr = text.substr(twitterContentStart.length).trim();
+                            // like ['cTMeMr6cC2xQwonTwpbSyKGv2VkvxEB836xr63vt8HsDNbF9q', 'with', 'protionCode']
+                            const addressSplits = _.split(addrWithCodeStr, " ", 3);
+                            console.log('addressSplits', addressSplits)
+                            if (addressSplits.length == 3) {
+                                const address = addressSplits[0].trim();
+                                const mainnetAddr = getMainnetAddr(address);
+                                const code = addressSplits[2].trim();
+                                if (mainnetAddr) {
+                                    return {
+                                        status: true,
+                                        address: mainnetAddr,
+                                        code
+                                    }
+                                } else {
+                                    return {
+                                        status: false,
+                                        result: `💥 Bad request(invalid Crust address), address must be started with c-`
+                                    }
                                 }
                             } else {
                                 return {
                                     status: false,
-                                    result: `💥 Bad request(invalid Crust address), address must be started with c-`
+                                    result: `💥 Bad request(bad content format), make sure you tweet like ... {CRUST_ADDRESS} with {PROMO_CODE} ...`
                                 }
                             }
                         } else {
                             return {
                                 status: false,
-                                result: `💥 Bad request(bad content format), make sure you tweet like ... {CRUST_ADDRESS} with {PROMO_CODE} ...`
+                                result: `💥 Bad request(bad content format), make sure you tweet like Requesting #CrustFreeStorage quota into {CRUST_ADDRESS} with {PROMO_CODE} ...`
                             }
                         }
                     } else {
                         return {
                             status: false,
-                            result: `💥  Wrong content format, missing #CrustNetwork`
+                            result: `💥 Wrong content format, missing #CrustNetwork`
                         }
                     }
                 } else {
