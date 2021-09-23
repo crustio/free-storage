@@ -176,7 +176,7 @@ export async function isTwitterUserLegalAndFollowed(twitterName: string) {
         } else {
             return {
                 status: false,
-                result: `👀 Please follow @CrustNetwork`
+                result: `👀 Please follow Twitter account: @CrustNetwork`
             }
         }
     } catch (error) {
