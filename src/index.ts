@@ -58,7 +58,12 @@ const bot = () => {
                 //   const authorId = msg.author.id;
                 const githubUrlPrefix = `https://github.com/${githubUserName}/${githubRepoName}/issues/`;
                 if (content.startsWith(githubUrlPrefix)) {
-                    const issue = content.substr(githubUrlPrefix.length);
+                    const paramIndex = content.indexOf('?');
+                    let url = content;
+                    if (paramIndex !== -1) {
+                        url = content.substr(0, content.indexOf('?'));
+                    }
+                    const issue = url.substr(githubUrlPrefix.length);
                     if (_.isNumber(Number(issue))) {       
                         const parseResult = await judgeGithubIdentityByIssueNum(Number(issue));
                         if (parseResult.status) {
