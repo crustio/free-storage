@@ -7,10 +7,11 @@ import { typesBundleForPolkadot } from '@crustio/type-definitions';
 import { timeout } from 'promise-timeout';
 const { Client, Intents } = require('discord.js');
 import { githubUserName } from './consts';
-import url from 'url';
 import DB from './db/index';
-import { githubHandler } from './service/handler';
+import { githubHandler, promotionCodeHandler } from './service/handler';
 import _ from 'lodash';
+import { parseTwitterByLink, twitterLinkPrefix } from './service/twitterApi';
+import { IPromotionApplicant } from './db/models/promotionApplicant.model';
 const db = new DB(dbEndpoint as string);
 
 const l = logger('main');
@@ -55,25 +56,55 @@ const bot = () => {
             if (channel == channelId) {
                 const content = msg.content;
                 //   const authorId = msg.author.id;
-                const urlPrefix = `https://github.com/${githubUserName}/${githubRepoName}/issues/`;
-                if (content.startsWith(urlPrefix)) {
-                    const issue = content.substr(urlPrefix.length);
+                const githubUrlPrefix = `https://github.com/${githubUserName}/${githubRepoName}/issues/`;
+                if (content.startsWith(githubUrlPrefix)) {
+                    const issue = content.substr(githubUrlPrefix.length);
                     if (_.isNumber(Number(issue))) {       
                         const parseResult = await judgeGithubIdentityByIssueNum(Number(issue));
                         if (parseResult.status) {
-                            const applyResult = await handleWithLock(apiLocker, 'github_apply', async () => {
+                            const applyResult = await handleWithLock(apiLocker, 'apply', async () => {
                                 if (parseResult.githubInfo) {
                                     return await githubHandler(api, parseResult.githubInfo, db);
                                 }
                             }, {
                                 value: "🤯 Faucet is busy, please try it later."
                             });
-                            msg.reply(applyResult.value);
+                            if (applyResult && applyResult.value) {
+                                msg.reply(applyResult.value);
+                            } else {
+                                msg.reply("🤯 Faucet is busy, please try it later.");
+                            }
                         } else {
                             msg.reply(parseResult.result);
                         }
                     } else {
                         msg.reply('💥 Bad request(issue not exist), please double check your issue link.');
+                    }
+                }
+                if (content.startsWith(twitterLinkPrefix)) {
+                    const twitterParseResult = await handleWithLock(apiLocker, 'parse_twitter', async () => {
+                        return await parseTwitterByLink(content);
+                    }, {
+                        status: false,
+                        result: "🤯 Faucet is busy, please try it later."
+                    })
+                    if (twitterParseResult.status) {
+                        const applyResult = await handleWithLock(apiLocker, 'apply', async () => {
+                                return await promotionCodeHandler(api, {
+                                    code: twitterParseResult.code as string,
+                                    address: twitterParseResult.address as string,
+                                    twitterId: twitterParseResult.user as string
+                                } as IPromotionApplicant, db);
+                        }, {
+                            value: "🤯 Faucet is busy, please try it later."
+                        });
+                        if (applyResult && applyResult.value) {
+                            msg.reply(applyResult.value);
+                        } else {
+                            msg.reply("🤯 Faucet is busy, please try it later.");
+                        }
+                    } else {
+                        msg.reply(twitterParseResult.result as string)
                     }
                 }
             }
