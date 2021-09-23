@@ -26,6 +26,10 @@ export default class DB {
         }).exec()
     }
 
+    async maybeExistAddressApplied(address: string) {
+        return PromotionApplicant.findOne({ 'address': address }).exec()
+    }
+
     async saveGithubApplicant(githubId: string, githubName: string, address: string) {
         return await GithubApplicant.create({
             githubId,
