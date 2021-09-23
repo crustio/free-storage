@@ -37,34 +37,42 @@ export async function githubHandler(api: ApiPromise, ghApplicant: GithubApplican
 
 export async function promotionCodeHandler(api: ApiPromise, iPA: IPromotionApplicant, db: DB) {
     try {
-        const maybeApplied = await db.maybeExistTwitterApplicant(iPA.twitterId, iPA.code);
-        if (maybeApplied) {
+        const maybeTwWithCodeApplied = await db.maybeExistTwitterApplicant(iPA.twitterId, iPA.code);
+        const maybeAddressApplied = await db.maybeExistAddressApplied(iPA.address);
+        if (maybeTwWithCodeApplied) {
             return {
                 ok: false,
                 value: "️⚠️ Your Twitter account has already applied with this promo code"
             }
-        } else {    
-            const usePromoCodeSuccessful = await db.usePromotionCode(iPA.code);
-            if (usePromoCodeSuccessful) {
-                const result = await transferStorageFee(api, iPA.address);
-                if (result.status) {
-                    await db.savePromotionApplicant(iPA.code, iPA.twitterId, iPA.address);
-                    return {
-                        ok: true,
-                        value: "🥳  Apply successfully! Please enjoy your journey of decentralized storage with Crust. Next you can refer wiki's **build**(https://wiki.crust.network/docs/en/buildGettingStarted) section to try Crust and IPFS!",
-                    };
-                } else {
-                    await db.promotionRollback(iPA.code);
-                    return {
-                        ok: false,
-                        value: result.details
+        } else {
+            if (maybeAddressApplied) {
+                return {
+                    ok: false,  
+                    value: "⚠️ Your Crust address has already applied, Please change your address and try again"
+                }
+            } else {  
+                const usePromoCodeSuccessful = await db.usePromotionCode(iPA.code);
+                if (usePromoCodeSuccessful) {
+                    const result = await transferStorageFee(api, iPA.address);
+                    if (result.status) {
+                        await db.savePromotionApplicant(iPA.code, iPA.twitterId, iPA.address);
+                        return {
+                            ok: true,
+                            value: "🥳  Apply successfully! Please enjoy your journey of decentralized storage with Crust. Next you can refer wiki's **build**(https://wiki.crust.network/docs/en/buildGettingStarted) section to try Crust and IPFS!",
+                        };
+                    } else {
+                        await db.promotionRollback(iPA.code);
+                        return {
+                            ok: false,
+                            value: result.details
+                        }
                     }
                 }
-            }
-            return {
-                ok: false,
-                value: "⚠️ Invalid promo code",
-            };
+                return {
+                    ok: false,
+                    value: "⚠️ Invalid promo code",
+                };
+            } 
         }
     } catch (error) {
         return {
