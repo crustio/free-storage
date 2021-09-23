@@ -35,8 +35,7 @@ async function sendTx(
             if (
                 status.isInvalid ||
                 status.isDropped ||
-                status.isUsurped ||
-                status.isRetracted
+                status.isUsurped 
             ) {
                 reject(new Error('Invalid transaction'));
             } else {

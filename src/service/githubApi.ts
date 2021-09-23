@@ -102,7 +102,6 @@ export const maybeStarred = async (githubId: number) => {
     })
     const total_stargazers_count = repoInfo.data.stargazers_count;
     const requestCount = Math.floor(_.divide(total_stargazers_count, 100)) + 1
-    const starInfo: any[] = [];
     for (let i = 1; i <= requestCount; i ++ ) {
         const starInfoResult = await octokit.request('GET /repos/{owner}/{repo}/stargazers', {
             owner: 'crustio',
@@ -110,13 +109,12 @@ export const maybeStarred = async (githubId: number) => {
             per_page: 100,
             page: i
         })
-        const stars = starInfoResult.data as any[]
-        starInfo.push(...stars)
+        const stars = starInfoResult.data as any[];
+        const index = _.findIndex(stars, (e: { id: number; }) => e.id == githubId);
+        if (index >= 0) {
+            return true
+        }
     }
 
-    const index = _.findIndex(starInfo, (info) => {
-        return info.id == githubId
-    })
-
-    return index >= 0;
+    return false;
 }
