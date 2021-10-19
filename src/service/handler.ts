@@ -51,9 +51,9 @@ export async function promotionCodeHandler(api: ApiPromise, iPA: IPromotionAppli
                     value: "⚠️ Your Crust address has already applied, Please change your address and try again"
                 }
             } else {  
-                const usePromoCodeSuccessful = await db.usePromotionCode(iPA.code);
-                if (usePromoCodeSuccessful) {
-                    const result = await transferStorageFee(api, iPA.address);
+                const codeBalanceAmountOrFailed = await db.usePromotionCode(iPA.code);
+                if (codeBalanceAmountOrFailed) {
+                    const result = await transferStorageFee(api, iPA.address, codeBalanceAmountOrFailed);
                     if (result.status) {
                         await db.savePromotionApplicant(iPA.code, iPA.twitterId, iPA.address);
                         return {
