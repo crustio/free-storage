@@ -25,7 +25,12 @@ export interface TweetParseResult {
 export async function parseTwitterByLink(twitterLink: string): Promise<TweetParseResult> {
     try {
         // like `zikunf/status/1437310853896753159`
-        const userStatus = twitterLink.substr(twitterLinkPrefix.length);
+        const paramIndex = twitterLink.indexOf('?');
+        let url = twitterLink;
+        if (paramIndex !== -1) {
+            url = twitterLink.substr(0, twitterLink.indexOf('?'));
+        }
+        const userStatus = url.substr(twitterLinkPrefix.length);
         if (userStatus) {
             // like ['zikunf', '1437310853896753159']
             const [user, tweetId] = _.split(userStatus, twitterLinkSpliter);
