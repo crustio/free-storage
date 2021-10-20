@@ -76,7 +76,7 @@ export default class DB {
                 maybeExistedApplicant.providedCount -= 1;
                 const result = await maybeExistedApplicant.save().then(e => {
                     console.log(`code: ${promotionCode} remaining available times: `, e.providedCount) 
-                    return e.providedCount >= 0 ? 1 : 0
+                    return e.providedCount >= 0 ? e.amount : 0
                 });
                 return result;
             } else {

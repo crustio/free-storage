@@ -3,12 +3,14 @@ import mongoose, {Schema, Document} from 'mongoose';
 export interface IPromotionCodes extends Document {
   code: string;
   providedCount: number;
+  amount: number;
 }
 
 const PromotionCodesSchema: Schema = new Schema({
   code: {type: String, required: true, unique: true, index: true},
   // Number of times available for application
-  providedCount: {type: Number, require: true}
+  providedCount: {type: Number, require: true},
+  amount: {type: Number, require: true},
 });
 
 // Export the model and return PromotionCode interface
