@@ -15,7 +15,7 @@
 
 1. Star `crustio/crust` repo (https://github.com/crustio/crust)
 2. Create an issue in `crustio/free-storage` repo (https://github.com/crustio/free-storage/issues/new/choose)
-3. Send the issue link
+3. Send the issue link to Crust [discord](https://discord.gg/WQQHnyKCmn)'s `📦 free-storage` channel
 4. Wait 10 seconds, you'll got the CRUs for trying the storage functions!
 
 ## 🙋🏻‍♂️ What's more
